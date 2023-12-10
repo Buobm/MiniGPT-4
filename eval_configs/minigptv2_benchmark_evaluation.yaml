@@ -5,8 +5,8 @@ model:
   end_sym: "</s>"
   low_resource: False
   prompt_template: '[INST] {} [/INST]'
-  llama_model: ""
-  ckpt: ""
+  llama_model: "/cluster/project/infk/cvg/students/buobm/MiniGPT_checkpoints/Llama-2-7b-chat-hf"
+  ckpt: "/cluster/project/infk/cvg/students/buobm/MiniGPT_checkpoints/checkpoint_stage3.pth"
   lora_r: 64
   lora_alpha: 16
 
@@ -67,11 +67,16 @@ evaluation_datasets:
     img_path: /path/to/eval/image/path 
     max_new_tokens: 20
     batch_size: 100
+  HoloAssist:
+    eval_file_path: /cluster/project/infk/cvg/students/buobm/datasets/HoloAssist/results_data_test/coarse/all_data/all/output_data.json
+    img_path: /cluster/project/infk/cvg/students/buobm/datasets/HoloAssist/results_data_test/coarse/all_data/all
+    max_new_tokens: 20
+    batch_size: 10
 
 run:
   task: image_text_pretrain
   name: minigptv2_evaluation
-  save_path: /path/to/save/folder_path
+  save_path: /cluster/project/infk/cvg/students/buobm/MiniGPT-4/results
 
   
 
