@@ -9,10 +9,9 @@ from PIL import Image
 from tqdm import tqdm
 import torch
 from torch.utils.data import DataLoader
-from datasets import load_dataset
+#from minigpt4.datasets import load_dataset
 
-
-from minigpt4.datasets.datasets.vqa_datasets import OKVQAEvalData,VizWizEvalData,IconQAEvalData,GQAEvalData,VSREvalData,HMEvalData
+from minigpt4.datasets.datasets.vqa_datasets import OKVQAEvalData,VizWizEvalData,IconQAEvalData,GQAEvalData,VSREvalData,HMEvalData,HoloAssistData
 from minigpt4.common.vqa_tools.VQA.PythonHelperTools.vqaTools.vqa import VQA
 from minigpt4.common.vqa_tools.VQA.PythonEvaluationTools.vqaEvaluation.vqaEval import VQAEval
 
@@ -248,5 +247,46 @@ if 'hm' in args.dataset:
 
     print('hm val:', count / total * 100, flush=True)
     file_save_path = os.path.join(save_path, "hm.json")
+    with open(file_save_path,'w') as f:
+        json.dump(minigpt4_predict, f)
+
+if 'HoloAssist' in args.dataset:
+
+    eval_file_path = cfg.evaluation_datasets_cfg["HoloAssist"]["eval_file_path"]
+    img_path = cfg.evaluation_datasets_cfg["HoloAssist"]["img_path"]
+    batch_size = cfg.evaluation_datasets_cfg["HoloAssist"]["batch_size"]
+    max_new_tokens = cfg.evaluation_datasets_cfg["HoloAssist"]["max_new_tokens"]
+
+    holoassist = json.load(open(eval_file_path, 'r'))
+
+    data = HoloAssistData(holoassist, vis_processor, img_path)
+    eval_dataloader = DataLoader(data, batch_size=batch_size, shuffle=False)
+    minigpt4_predict = []
+    count=0
+    total=0
+    correct_option = 0
+
+    for images, texts, labels, options in tqdm(eval_dataloader):
+        texts = prepare_texts(texts, conv_temp)  # warp the texts with conversation template
+        with torch.no_grad():
+            answers = model.generate(images, texts, max_new_tokens=max_new_tokens, do_sample=False,repetition_penalty=1.0)
+
+        for answer, label, option in zip(answers, labels):
+            result = dict()
+            if answer in option:
+                correct_option += 1
+                print(option)
+
+
+            result['pred'] = answer
+            result['gt'] = label
+            minigpt4_predict.append(result)
+            if answer == label:
+                count+=1
+            total += 1
+    
+    print('HoloAssist Acc:', count / total * 100, flush=True)
+    print('HoloAssist Respones allowed:', correct_option / total * 100, flush=True)
+    file_save_path = os.path.join(save_path, "HoloAssist_results.json")
     with open(file_save_path,'w') as f:
         json.dump(minigpt4_predict, f)
