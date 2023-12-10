@@ -164,6 +164,7 @@ cython_debug/
 wandb/
 jobs/logs/
 *.out
+*.err
 *ipynb
 .history/
 *.json
@@ -187,3 +188,4 @@ jupyter_notebook.slurm
 
 #Results
 results/
+
