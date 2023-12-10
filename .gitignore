@@ -128,6 +128,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+myenv/
 
 # Spyder project settings
 .spyderproject
@@ -182,3 +183,7 @@ sbatch_generate*
 eval_data/
 dataset/Evaluation.md
 jupyter_notebook.slurm
+
+
+#Results
+results/
